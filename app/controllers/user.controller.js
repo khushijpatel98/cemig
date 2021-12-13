@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 var jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const user = require("../models/user");
+// const user = require("../models/user");
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
@@ -65,12 +66,49 @@ class UserController {
         
             // return new user
             res.status(201).json(userData);
-          } catch (err) {
+        } catch (err) {
             console.log(err);
-          }
-        
+        }
     }
+
+    async getUser(req, res) {
+        res.status(200).send("Welcome 🙌 ");
+    }
+
     async login(req, res) {
+        try {
+            // Get user input
+            const { email, password } = req.body;
+
+            // Validate user input
+            if (!(email && password)) {
+                res.status(400).send("All input is required");
+            }
+            // Validate if user exist in our database
+            let userData = await user.findOne({ email });
+
+            if (userData && (await bcrypt.compare(password, userData.password))) {
+            // Create token
+            const token = jwt.sign(
+                { user_id: user._id, email },
+                'secret',
+                {
+                expiresIn: "2h",
+                }
+            );
+
+            // save user token
+            userData.token = token;
+
+            // user
+            res.status(200).json(userData);
+        } else {
+            res.status(400).send("Invalid Credentials");
+        }
+        
+        } catch (err) {
+            console.log(err);
+        }
         
     }
 

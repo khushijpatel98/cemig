@@ -9,4 +9,4 @@ const userSchema = new mongoose.Schema({
   _id: { type: Object },
 }, { timestamps: true });
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("users", userSchema);
